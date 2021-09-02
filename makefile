@@ -1,6 +1,6 @@
 null :=
 SPACE := $(null) $(null)
-exec = $(notdir $(subst $(SPACE),_,$(PWD)))
+exec = $(notdir $(subst $(SPACE),_,$(PWD))).out
 sources = $(wildcard src/*.c)
 objects = $(sources:.c=.o)
 flags = -g
