@@ -6,7 +6,7 @@ int main()
 {
     Engine *engine = engine_create("Cellular Automata", WIDTH, HEIGHT, ENGINE_PXM_ENABLE);
     engine->memory = (Memory *)malloc(sizeof(Memory));
-    engine_set_framerate(engine, 1);
+    engine_set_framerate(engine, 5);
 
     engine->memory->cells = (Cell ***)malloc(sizeof(Cell **) * X_CELLS);
     for (int x = 0; x < X_CELLS; x++)
@@ -21,6 +21,14 @@ int main()
         }
     }
 
+    engine->memory->cells[2][0]->state = 1;
+    engine->memory->cells[2][1]->state = 1;
+    engine->memory->cells[2][2]->state = 1;
+    engine->memory->cells[1][2]->state = 1;
+    engine->memory->cells[0][1]->state = 1;
+
+    engine->memory->updating = 1;
+
     engine_run(engine);
     engine_destroy(engine);
     return 0;
@@ -28,10 +36,17 @@ int main()
 
 void engine_handle_events(Engine *engine, SDL_Event *event)
 {
+    SDL_KeyboardEvent *kbe;
+
     switch (event->type)
     {
     case SDL_QUIT:
         engine->running = 0;
+        break;
+    case SDL_KEYUP:
+        kbe = (SDL_KeyboardEvent *)event;
+        if (kbe->keysym.sym == SDLK_SPACE)
+            engine->memory->updating = !engine->memory->updating;
         break;
     default:
         break;
@@ -128,6 +143,9 @@ Colour logic_game_of_life(Engine *engine, int x, int y)
         if (sum == 3)
             c->next_state = 1;
     }
+
+    if (!engine->memory->updating)
+        c->next_state = c->state;
 
     return colour;
 }
