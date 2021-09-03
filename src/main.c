@@ -27,7 +27,7 @@ int main()
     engine->memory->cells[1][2]->state = 1;
     engine->memory->cells[0][1]->state = 1;
 
-    engine->memory->updating = 1;
+    engine->memory->updating = 0;
 
     engine_run(engine);
     engine_destroy(engine);
@@ -70,11 +70,12 @@ void engine_on_frame(Engine *engine)
             }
         }
 
-    for (int y = 0; y < Y_CELLS; y++)
-        for (int x = 0; x < X_CELLS; x++)
-        {
-            engine->memory->cells[x][y]->state = engine->memory->cells[x][y]->next_state;
-        }
+    if (engine->memory->updating)
+        for (int y = 0; y < Y_CELLS; y++)
+            for (int x = 0; x < X_CELLS; x++)
+            {
+                engine->memory->cells[x][y]->state = engine->memory->cells[x][y]->next_state;
+            }
 }
 
 int *get_cell_neighbour_states(Engine *engine, int x, int y)
@@ -133,6 +134,8 @@ Colour logic_game_of_life(Engine *engine, int x, int y)
             c->next_state = 0;
         else if (sum >= 4)
             c->next_state = 0;
+        else
+            c->next_state = 1;
     }
     else
     {
@@ -142,10 +145,9 @@ Colour logic_game_of_life(Engine *engine, int x, int y)
 
         if (sum == 3)
             c->next_state = 1;
+        else
+            c->next_state = 0;
     }
-
-    if (!engine->memory->updating)
-        c->next_state = c->state;
 
     return colour;
 }
