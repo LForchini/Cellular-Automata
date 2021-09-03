@@ -30,6 +30,7 @@ typedef struct colour_t
 typedef struct memory_t
 {
     Cell ***cells;
+    int updating;
 } Memory;
 
 int *get_cell_neighbour_states(Engine *engine, int x, int y);
