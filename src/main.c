@@ -62,38 +62,38 @@ void engine_on_frame(Engine *engine)
             Colour c = logic_game_of_life(engine, x, y);
 
             for (int j = 0; j < CELL_WIDTH; j++)
-            {
                 for (int i = 0; i < CELL_WIDTH; i++)
-                {
                     engine_set_pixel(engine, (CELL_WIDTH * x) + i, (CELL_WIDTH * y) + j, c.r, c.g, c.b);
-                }
-            }
         }
 
     if (engine->memory->updating)
         for (int y = 0; y < Y_CELLS; y++)
             for (int x = 0; x < X_CELLS; x++)
-            {
                 engine->memory->cells[x][y]->state = engine->memory->cells[x][y]->next_state;
-            }
 }
 
-int *get_cell_neighbour_states(Engine *engine, int x, int y)
+/* 
+    Returns a list of states of neighbours. 
+    NEIGHBOUR_COMPLETE mode means all 8 neighbours are added;
+        NEIGHBOUR_ORTHOGANAL only orthoganally adjacent cells.
+    The list is ordered from left to right, top to bottom.
+*/
+int *get_cell_neighbour_states(Engine *engine, int x, int y, int mode)
 {
     Cell ***cells = engine->memory->cells;
 
     int length = 4;
-    if (NEIGHBOUR_MODE == NM_8)
+    if (mode == NEIGHBOUR_COMPLETE)
         length = 8;
     int *neighbours = (int *)malloc(sizeof(int) * length);
     memset(neighbours, 0, length * sizeof(int));
 
     int i = 0;
-    if (x > 0 && y > 0 && NEIGHBOUR_MODE == NM_8)
+    if (x > 0 && y > 0 && mode == NEIGHBOUR_COMPLETE)
         neighbours[i++] = cells[x - 1][y - 1]->state;
     if (y > 0)
         neighbours[i++] = cells[x][y - 1]->state;
-    if (x < X_CELLS - 1 && y > 0 && NEIGHBOUR_MODE == NM_8)
+    if (x < X_CELLS - 1 && y > 0 && mode == NEIGHBOUR_COMPLETE)
         neighbours[i++] = cells[x + 1][y - 1]->state;
 
     if (x > 0)
@@ -101,27 +101,34 @@ int *get_cell_neighbour_states(Engine *engine, int x, int y)
     if (x < X_CELLS - 1)
         neighbours[i++] = cells[x + 1][y]->state;
 
-    if (x > 0 && y < Y_CELLS - 1 && NEIGHBOUR_MODE == NM_8)
+    if (x > 0 && y < Y_CELLS - 1 && mode == NEIGHBOUR_COMPLETE)
         neighbours[i++] = cells[x - 1][y + 1]->state;
     if (y < Y_CELLS - 1)
         neighbours[i++] = cells[x][y + 1]->state;
-    if (x < X_CELLS - 1 && y < Y_CELLS - 1 && NEIGHBOUR_MODE == NM_8)
+    if (x < X_CELLS - 1 && y < Y_CELLS - 1 && mode == NEIGHBOUR_COMPLETE)
         neighbours[i++] = cells[x + 1][y + 1]->state;
 
     return neighbours;
 }
 
+/* 
+    Implements the logic for Conway's Game of Life
+    There are two states, alive and dead:
+        Alive:
+            If there is 1 or 0 alive neighbours, die
+            If there 4+ alive neighbours, die
+        Dead:
+            If there is 3 alive neighbours, live
+*/
 Colour logic_game_of_life(Engine *engine, int x, int y)
 {
     Cell *c = engine->memory->cells[x][y];
     Colour colour;
 
-    int *neighbour_states = get_cell_neighbour_states(engine, x, y);
+    int *neighbour_states = get_cell_neighbour_states(engine, x, y, NEIGHBOUR_COMPLETE);
     int sum = 0;
     for (int i = 0; i < 8; i++)
-    {
         sum += neighbour_states[i];
-    }
     free(neighbour_states);
 
     if (c->state == 1)
