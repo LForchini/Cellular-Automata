@@ -26,6 +26,8 @@ typedef struct engine_t
 
     Uint32 previous_time;
     Uint32 delta;
+    int framerate;
+    int frame_time;
 } Engine;
 
 #include "include/engine/draw.h"
@@ -37,6 +39,7 @@ void engine_on_frame(Engine *);
 Engine *engine_create(char *title, int width, int height, int pixel_mode)
 {
     Engine *engine = (Engine *)malloc(sizeof(Engine));
+    memset(engine, 0, sizeof(Engine));
     SDL_Init(SDL_INIT_EVERYTHING);
     engine->running = 1;
     engine->window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
@@ -87,5 +90,17 @@ void engine_run(Engine *engine)
         if (engine->pixel_mode)
             SDL_UnlockTexture(engine->texture);
         engine_draw_frame(engine);
+
+        if (engine->framerate)
+        {
+            int delay = engine->frame_time - (SDL_GetTicks() % engine->frame_time);
+            SDL_Delay(delay);
+        }
     }
+}
+
+void engine_set_framerate(Engine *engine, int fr)
+{
+    engine->framerate = fr;
+    engine->frame_time = 1000 / fr;
 }
