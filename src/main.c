@@ -37,6 +37,7 @@ int main()
 void engine_handle_events(Engine *engine, SDL_Event *event)
 {
     SDL_KeyboardEvent *kbe;
+    SDL_MouseButtonEvent *mbe;
 
     switch (event->type)
     {
@@ -47,6 +48,15 @@ void engine_handle_events(Engine *engine, SDL_Event *event)
         kbe = (SDL_KeyboardEvent *)event;
         if (kbe->keysym.sym == SDLK_SPACE)
             engine->memory->updating = !engine->memory->updating;
+        break;
+    case SDL_MOUSEBUTTONUP:
+        mbe = (SDL_MouseButtonEvent *)event;
+        if (mbe->button == SDL_BUTTON_LEFT)
+        {
+            int x = mbe->x / CELL_WIDTH;
+            int y = mbe->y / CELL_WIDTH;
+            engine->memory->cells[x][y]->state = !engine->memory->cells[x][y]->state;
+        }
         break;
     default:
         break;
