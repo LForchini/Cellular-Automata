@@ -21,12 +21,6 @@ int main()
         }
     }
 
-    engine->memory->cells[2][0]->state = 1;
-    engine->memory->cells[2][1]->state = 1;
-    engine->memory->cells[2][2]->state = 1;
-    engine->memory->cells[1][2]->state = 1;
-    engine->memory->cells[0][1]->state = 1;
-
     engine->memory->updating = 0;
 
     engine_run(engine);
