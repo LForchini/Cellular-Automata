@@ -9,10 +9,8 @@
 #define X_CELLS (WIDTH / CELL_WIDTH)
 #define Y_CELLS (HEIGHT / CELL_WIDTH)
 
-#define NM_8 1
-#define NM_4 2
-
-#define NEIGHBOUR_MODE NM_8
+#define NEIGHBOUR_COMPLETE 1
+#define NEIGHBOUR_ORTHOGONAL 2
 
 typedef struct cell_t
 {
@@ -33,5 +31,5 @@ typedef struct memory_t
     int updating;
 } Memory;
 
-int *get_cell_neighbour_states(Engine *engine, int x, int y);
+int *get_cell_neighbour_states(Engine *engine, int x, int y, int mode);
 Colour logic_game_of_life(Engine *engine, int x, int y);
